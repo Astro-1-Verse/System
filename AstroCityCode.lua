@@ -42003,8 +42003,8 @@ if game.PlaceId == 12062942034 then
 		Work.Map.Building:FindFirstChild("AstroWare Tower"):Destroy()
 	end
 	--Create Tower
-	local Model = game:GetService("Workspace").Map.Building.AvengersTower:Clone()
+	local Model = game:GetService("Workspace").Map.UniqueBuilding.AvengersTower:Clone()
 	Model.Name = "AstroWare Tower"
 	Model.Parent = game:GetService("Workspace").Map.Building
-	Model:PivotTo(CFrame.new(9879, 107695, 59796))
+	Model:PivotTo(CFrame.new(9192, 107668, 59805))
 end
