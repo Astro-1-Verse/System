@@ -1,8 +1,8 @@
 
 
 local space = game:GetService("Workspace")
-if space:FindFirstChild("Map") then
-    if space.Map:FindFirstChild("Building") then
+if game:GetService("Workspace"):FindFirstChild("Map") then
+    if game:GetService("Workspace").Map:FindFirstChild("Building") then
         local AstroWareLand = game:GetService("Workspace").Map.Building:FindFirstChild("AstroWare Land")
         if AstroWareLand then
             AstroWareLand:Destroy()
@@ -41991,20 +41991,22 @@ Part1.Name = "AstroWareP1"
 Part1.Material = "Asphalt"
 Part1.Color = Color3.new(255, 0, 0)
 --Part 2
-Part2.Anchored = true
-Part2.Parent = Work
-Part2.Transparency = 1
-Part2.CFrame = CFrame.new(9635, 107809, 59805)
-Part2.Size = Vector3.new(1,1,1)
-Part2.Name = "AstroWareP2"
-Part2.Material = "Asphalt"
-Part2.Color = Color3.new(255, 0, 0)
-Part2.CanCollide = false
-local Model = game:GetService("Workspace").CurrentMap
-Model.Name = "AstroWare Land"
-Model.Parent = game:GetService("Workspace").Map.Building
-Model:PivotTo(CFrame.new(9598, 107687, 59481))
 if game.PlaceId == 12062942034 then
+    if game:GetService("Workspace"):FindFirstChild("Map") then
+    Part2.Anchored = true
+    Part2.Parent = Work
+    Part2.Transparency = 1
+    Part2.CFrame = CFrame.new(9635, 107809, 59805)
+    Part2.Size = Vector3.new(1,1,1)
+    Part2.Name = "AstroWareP2"
+    Part2.Material = "Asphalt"
+    Part2.Color = Color3.new(255, 0, 0)
+    Part2.CanCollide = false
+    local Model = game:GetService("Workspace").CurrentMap
+    Model.Name = "AstroWare Land"
+    Model.Parent = game:GetService("Workspace").Map.Building
+    Model:PivotTo(CFrame.new(9598, 107687, 59481))
+    end
 	local Work = game:GetService("Workspace")
 	if Work.Map.Building:FindFirstChild("AstroWare Tower") then
 		Work.Map.Building:FindFirstChild("AstroWare Tower"):Destroy()
