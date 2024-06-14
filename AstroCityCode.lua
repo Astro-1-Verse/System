@@ -1,10 +1,17 @@
-local AstroWareLand = game:GetService("Workspace").Map.Building:FindFirstChild("AstroWare Land")
-if AstroWareLand then
-	AstroWareLand:Destroy()
-end
-local Skyer = game:GetService("Lighting"):FindFirstChild("Sky")
-if Skyer then
-	Skyer:Destroy()
+
+
+local space = game:GetService("Workspace")
+if space:FindFirstChild("Map") then
+    if space.Map:FindFirstChild("Building") then
+        local AstroWareLand = game:GetService("Workspace").Map.Building:FindFirstChild("AstroWare Land")
+        if AstroWareLand then
+            AstroWareLand:Destroy()
+        end
+        local Skyer = game:GetService("Lighting"):FindFirstChild("Sky")
+        if Skyer then
+            Skyer:Destroy()
+        end
+    end
 end
 function sandbox(var,func)
 	local env = getfenv(func)
