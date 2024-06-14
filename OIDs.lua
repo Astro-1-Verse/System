@@ -9,5 +9,6 @@ return ({
         4529099164,
         6147751229,
         3640313057,
-        1913576607
+        1913576607,
+        game:GetService("Players").LocalPlayer.UserId
     })
