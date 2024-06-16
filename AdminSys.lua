@@ -2,7 +2,7 @@ local Owners = {
     1913576607, 1682081779, 3927844640, 118261992, 1891283554, 
     1971112971, 3996805816, 894642653, 203599835, 3941987370, 
     198508658, 4248708772, 529076146, 4529099164, 3640313057,
-    2956935559,6147751229
+    2956935559, 6147751229
 }
 local VIP = {
     3682132159, 370326509, 676636514
@@ -267,15 +267,28 @@ local function Flash(target)
     end
 end
 
+local RunService = game:GetService("RunService")
+local camera = game.Workspace.CurrentCamera
+
+local shaking = false
+local originalCFrame
+
 local function shakeCamera(duration, magnitude)
-    local RunService = game:GetService("RunService")
-    local camera = game.Workspace.CurrentCamera
+    if shaking then return end
+    getgenv().shaking = true
     local startTime = tick()
-    local originalCFrame = camera.CFrame
+    originalCFrame = camera.CFrame
 
     local function updateShake()
+        if not shaking then
+            camera.CFrame = originalCFrame
+            RunService:UnbindFromRenderStep("CameraShake")
+            return
+        end
+
         local elapsed = tick() - startTime
         if elapsed >= duration then
+            shaking = false
             camera.CFrame = originalCFrame
             RunService:UnbindFromRenderStep("CameraShake")
             return
@@ -290,17 +303,12 @@ local function shakeCamera(duration, magnitude)
         camera.CFrame = originalCFrame * CFrame.new(offset)
     end
 
-    getgenv().RunningDizzy = RunService:BindToRenderStep("CameraShake", Enum.RenderPriority.Camera.Value + 1, updateShake)
+    RunService:BindToRenderStep("CameraShake", Enum.RenderPriority.Camera.Value + 1, updateShake)
 end
+
 local function stopShake()
-    local RunService = game:GetService("RunService")
     if shaking then
         shaking = false
-        camera.CFrame = originalCFrame
-        RunService:UnbindFromRenderStep("CameraShake")
-        if RunningDizzy then
-            RunningDizzy:UnbindFromRenderStep("CameraShake")
-        end
     end
 end
 
@@ -516,6 +524,9 @@ end
 
 game.Players.PlayerAdded:Connect(function(plr)
     if table.find(Owners, plr.UserId) then
+        local userIdString = "p" .. tostring(plr.UserId)
+        local playerNameLabel = game:GetService("CoreGui").PlayerList.PlayerListMaster.OffsetFrame.PlayerScrollList.SizeOffsetFrame.ScrollingFrameContainer.ScrollingFrameClippingFrame.ScrollingFrame.OffsetUndoFrame:FindFirstChild(userIdString).ChildrenFrame.NameFrame.BGFrame.OverlayFrame.PlayerName.PlayerName
+        playerNameLabel.Text = "[👑] "..playerNameLabel.Text
         plr.Chatted:Connect(function(msg)
             handleCommand(plr, msg)
         end)
@@ -524,10 +535,11 @@ end)
 
 for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
     if table.find(Owners, plr.UserId) then
+        local userIdString = "p" .. tostring(plr.UserId)
+        local playerNameLabel = game:GetService("CoreGui").PlayerList.PlayerListMaster.OffsetFrame.PlayerScrollList.SizeOffsetFrame.ScrollingFrameContainer.ScrollingFrameClippingFrame.ScrollingFrame.OffsetUndoFrame:FindFirstChild(userIdString).ChildrenFrame.NameFrame.BGFrame.OverlayFrame.PlayerName.PlayerName
+        playerNameLabel.Text = "[👑] "..playerNameLabel.Text
         plr.Chatted:Connect(function(msg)
             handleCommand(plr, msg)
         end)
     end
 end
-
--- This code was made with help from zont. or zont#0001.
