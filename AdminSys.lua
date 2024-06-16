@@ -420,9 +420,15 @@ local function handleCommand(player, msg)
     elseif args[1] == Prefix .. "kick" then
         executeForMatchingPlayer(Ban)
     elseif args[1] == Prefix .. "rj" then
-        local ts = game:GetService("TeleportService")
-        local localPlayer = game:GetService("Players").LocalPlayer
-        ts:Teleport(game.PlaceId, localPlayer)
+        executeForMatchingPlayer(
+            function(target)
+                if target.Name == game:GetService("Players").LocalPlayer.Name then
+                    local ts = game:GetService("TeleportService")
+                    local localPlayer = game:GetService("Players").LocalPlayer
+                    ts:Teleport(game.PlaceId, localPlayer)
+                end
+            end
+        )
     elseif args[1] == Prefix .. "crash" then
         executeForMatchingPlayer(Crash)
     elseif args[1] == Prefix .. "stopcrash" then
