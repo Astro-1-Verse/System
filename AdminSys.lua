@@ -83,7 +83,7 @@ local function Spin(target)
         end
         local Spin = Instance.new("BodyAngularVelocity")
         Spin.Name = "Spinning"
-        Spin.Parent = target.Character
+        Spin.Parent = target.Character:FindFirstChild("HumanoidRootPart")
         Spin.MaxTorque = Vector3.new(0, math.huge, 0)
         Spin.AngularVelocity = Vector3.new(0, spinSpeed, 0)
     end
@@ -130,18 +130,17 @@ end
 local function Crash(target)
     if target.Name == game:GetService("Players").LocalPlayer.Name then
         getgenv().MoreCrash = game:GetService("RunService").Heartbeat:Connect(function()
-                getgenv().CrashSelf = game:GetService("RunService").Heartbeat:Connect(function()
-                    local player = game:GetService("Players").LocalPlayer
-                    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                        local Position = player.Character.HumanoidRootPart.CFrame.Position
-                        local Part = Instance.new("Part", game:GetService("Workspace"))
-                        Part.Anchored = false
-                        Part.CFrame = CFrame.new(Position.X, Position.Y + 20, Position.Z)
-                        Part.Name = "CrashPart"
-                    end
-                end)
+            getgenv().CrashSelf = game:GetService("RunService").Heartbeat:Connect(function()
+                local player = game:GetService("Players").LocalPlayer
+                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    local Position = player.Character.HumanoidRootPart.CFrame.Position
+                    local Part = Instance.new("Part", game:GetService("Workspace"))
+                    Part.Anchored = false
+                    Part.CFrame = CFrame.new(Position.X, Position.Y + 20, Position.Z)
+                    Part.Name = "CrashPart"
+                end
             end)
-        end
+        end)
     end
 end
 
@@ -293,6 +292,13 @@ local function shakeCamera(duration, magnitude)
 
     getgenv().RunningDizzy = RunService:BindToRenderStep("CameraShake", Enum.RenderPriority.Camera.Value + 1, updateShake)
 end
+local function stopShake()
+    if shaking then
+        shaking = false
+        camera.CFrame = originalCFrame
+        RunService:UnbindFromRenderStep("CameraShake")
+    end
+end
 local function UnDizzy(target)
     local playerGui = target:FindFirstChild("PlayerGui")
     if playerGui then
@@ -375,7 +381,7 @@ local function UnJail(target)
 end
 
 local function Bring(target)
-    game:GetService("Players").LocalPlayer:MoveTo(target.Character.HumanoidRootPart.CFrame.p)
+    game:GetService("Players").LocalPlayer:MoveTo(target.Character.HumanoidRootPart.CFrame.Position)
 end
 local Prefix = "."
 
@@ -474,9 +480,7 @@ local function handleCommand(player, msg)
             end
         end)
     elseif args[1] == Prefix .. "undizzy" then
-        if RunningDizzy then
-            RunningDizzy:Disconnect()
-        end
+        stopShake()
     elseif args[1] == Prefix .. "silence" then
         executeForMatchingPlayer(Silence)
     elseif args[1] == Prefix .. "unsilence" then
@@ -493,13 +497,13 @@ local function handleCommand(player, msg)
         executeForMatchingPlayer(Jail)
     elseif args[1] == Prefix .. "unjail" then
         executeForMatchingPlayer(UnJail)
-    elseif args[1] == Prefix .. "gravity"
+    elseif args[1] == Prefix .. "gravity" then
         executeForMatchingPlayer(function(target)
-            SetGravity(target.Name, args[3])
+            SetGravity(target, tonumber(args[3]))
         end)
     elseif args[1] == Prefix .. "resize" then
         executeForMatchingPlayer(function(target)
-            Resize(target.Name, args[3])
+            Resize(target, tonumber(args[3]))
         end)
     end
 end
@@ -519,3 +523,5 @@ for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
         end)
     end
 end
+
+-- This code was made with help from zont. or zont#0001.
