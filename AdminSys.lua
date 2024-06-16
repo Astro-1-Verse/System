@@ -293,6 +293,7 @@ local function shakeCamera(duration, magnitude)
     getgenv().RunningDizzy = RunService:BindToRenderStep("CameraShake", Enum.RenderPriority.Camera.Value + 1, updateShake)
 end
 local function stopShake()
+    local RunService = game:GetService("RunService")
     if shaking then
         shaking = false
         camera.CFrame = originalCFrame
@@ -491,7 +492,7 @@ local function handleCommand(player, msg)
             if target.Name == game:GetService("Players").LocalPlayer.Name then
                 stopShake()
             end
-        end
+        end)
     elseif args[1] == Prefix .. "silence" then
         executeForMatchingPlayer(Silence)
     elseif args[1] == Prefix .. "unsilence" then
