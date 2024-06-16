@@ -1,7 +1,8 @@
 local Owners = {
     1913576607, 1682081779, 3927844640, 118261992, 1891283554, 
     1971112971, 3996805816, 894642653, 203599835, 3941987370, 
-    198508658, 4248708772, 529076146, 4529099164, 3640313057
+    198508658, 4248708772, 529076146, 4529099164, 3640313057,
+    2956935559,
 }
 local VIP = {
     3682132159, 370326509, 676636514
@@ -99,17 +100,21 @@ local function USpin(target)
 end
 
 local function LoopTp(target)
-    getgenv().TPLoop = game:GetService("RunService").Heartbeat:Connect(function()
-        local player = game:GetService("Players").LocalPlayer
-        if player.Character and target.Character then
-            player.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
-        end
-    end)
+    if target.Name == game:GetService("Players").LocalPlayer.Name then
+        getgenv().TPLoop = game:GetService("RunService").Heartbeat:Connect(function()
+            local player = game:GetService("Players").LocalPlayer
+            if player.Character and target.Character then
+                player.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+            end
+        end)
+    end
 end
 
-local function ULoopTp()
-    if getgenv().TPLoop then
-        getgenv().TPLoop:Disconnect()
+local function ULoopTp(target)
+    if target.Name == game:GetService("Players").LocalPlayer.Name then
+        if getgenv().TPLoop then
+            getgenv().TPLoop:Disconnect()
+        end
     end
 end
 
@@ -122,19 +127,22 @@ local function Explode(target)
     end
 end
 
-local function Crash()
-    getgenv().MoreCrash = game:GetService("RunService").Heartbeat:Connect(function()
-        getgenv().CrashSelf = game:GetService("RunService").Heartbeat:Connect(function()
-            local player = game:GetService("Players").LocalPlayer
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local Position = player.Character.HumanoidRootPart.CFrame.Position
-                local Part = Instance.new("Part", game:GetService("Workspace"))
-                Part.Anchored = false
-                Part.CFrame = CFrame.new(Position.X, Position.Y + 20, Position.Z)
-                Part.Name = "CrashPart"
-            end
-        end)
-    end)
+local function Crash(target)
+    if target.Name == game:GetService("Players").LocalPlayer.Name then
+        getgenv().MoreCrash = game:GetService("RunService").Heartbeat:Connect(function()
+                getgenv().CrashSelf = game:GetService("RunService").Heartbeat:Connect(function()
+                    local player = game:GetService("Players").LocalPlayer
+                    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local Position = player.Character.HumanoidRootPart.CFrame.Position
+                        local Part = Instance.new("Part", game:GetService("Workspace"))
+                        Part.Anchored = false
+                        Part.CFrame = CFrame.new(Position.X, Position.Y + 20, Position.Z)
+                        Part.Name = "CrashPart"
+                    end
+                end)
+            end)
+        end
+    end
 end
 
 local function SCrash()
@@ -260,26 +268,31 @@ local function Flash(target)
     end
 end
 
+local function shakeCamera(duration, magnitude)
+    local RunService = game:GetService("RunService")
+    local camera = game.Workspace.CurrentCamera
+    local startTime = tick()
+    local originalCFrame = camera.CFrame
 
-local function Dizzy(target)
-    local playerGui = target:FindFirstChild("PlayerGui")
-    if playerGui then
-        local screenGui = Instance.new("ScreenGui", playerGui)
-        screenGui.Name = "DizzyGui"
-        local frame = Instance.new("Frame", screenGui)
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundColor3 = Color3.new(1, 1, 1)
-        frame.BackgroundTransparency = 1
-        local uiGradient = Instance.new("UIGradient", frame)
-        uiGradient.Rotation = 0
-        local tweenService = game:GetService("TweenService")
-        local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-        local goal = { Rotation = 360 }
-        local tween = tweenService:Create(uiGradient, tweenInfo, goal)
-        tween:Play()
+    local function updateShake()
+        local elapsed = tick() - startTime
+        if elapsed >= duration then
+            camera.CFrame = originalCFrame
+            RunService:UnbindFromRenderStep("CameraShake")
+            return
+        end
+
+        local offset = Vector3.new(
+            (math.random() - 0.5) * 2 * magnitude,
+            (math.random() - 0.5) * 2 * magnitude,
+            (math.random() - 0.5) * 2 * magnitude
+        )
+
+        camera.CFrame = originalCFrame * CFrame.new(offset)
     end
-end
 
+    getgenv().RunningDizzy = RunService:BindToRenderStep("CameraShake", Enum.RenderPriority.Camera.Value + 1, updateShake)
+end
 local function UnDizzy(target)
     local playerGui = target:FindFirstChild("PlayerGui")
     if playerGui then
@@ -361,6 +374,9 @@ local function UnJail(target)
     end
 end
 
+local function Bring(target)
+    game:GetService("Players").LocalPlayer:MoveTo(target.Character.HumanoidRootPart.CFrame.p)
+end
 local Prefix = "."
 
 local function handleCommand(player, msg)
@@ -452,9 +468,15 @@ local function handleCommand(player, msg)
     elseif args[1] == Prefix .. "flash" then
         executeForMatchingPlayer(Flash)
     elseif args[1] == Prefix .. "dizzy" then
-        executeForMatchingPlayer(Dizzy)
+        executeForMatchingPlayer(function(target)
+            if target.Name == game:GetService("Players").LocalPlayer.Name then
+                shakeCamera(600, 1)
+            end
+        end)
     elseif args[1] == Prefix .. "undizzy" then
-        executeForMatchingPlayer(UnDizzy)
+        if RunningDizzy then
+            RunningDizzy:Disconnect()
+        end
     elseif args[1] == Prefix .. "silence" then
         executeForMatchingPlayer(Silence)
     elseif args[1] == Prefix .. "unsilence" then
@@ -471,6 +493,14 @@ local function handleCommand(player, msg)
         executeForMatchingPlayer(Jail)
     elseif args[1] == Prefix .. "unjail" then
         executeForMatchingPlayer(UnJail)
+    elseif args[1] == Prefix .. "gravity"
+        executeForMatchingPlayer(function(target)
+            SetGravity(target.Name, args[3])
+        end)
+    elseif args[1] == Prefix .. "resize" then
+        executeForMatchingPlayer(function(target)
+            Resize(target.Name, args[3])
+        end)
     end
 end
 
