@@ -100,7 +100,7 @@ local function USpin(target)
 end
 
 local function LoopTp(target)
-    if target.Name == game:GetService("Players").LocalPlayer.Name then
+    if target.Name == game:GetService("s").Local.Name then
         getgenv().TPLoop = game:GetService("RunService").Heartbeat:Connect(function()
             local player = game:GetService("Players").LocalPlayer
             if player.Character and target.Character then
@@ -524,9 +524,102 @@ end
 
 game.Players.PlayerAdded:Connect(function(plr)
     if table.find(Owners, plr.UserId) then
-        local userIdString = "p" .. tostring(plr.UserId)
-        local playerNameLabel = game:GetService("CoreGui").PlayerList.PlayerListMaster.OffsetFrame.PlayerScrollList.SizeOffsetFrame.ScrollingFrameContainer.ScrollingFrameClippingFrame.ScrollingFrame.OffsetUndoFrame:FindFirstChild(userIdString).ChildrenFrame.NameFrame.BGFrame.OverlayFrame.PlayerName.PlayerName
-        playerNameLabel.Text = "[👑] "..playerNameLabel.Text
+        local success, err = pcall(function()
+            if plr then
+                local userIdString = "p_" .. tostring(plr.UserId)
+                local coreGui = game:GetService("CoreGui")
+                
+                -- Navigate through the hierarchy safely
+                local playerList = coreGui:FindFirstChild("PlayerList")
+                if playerList then
+                    local playerListMaster = playerList:FindFirstChild("PlayerListMaster")
+                    if playerListMaster then
+                        local offsetFrame = playerListMaster:FindFirstChild("OffsetFrame")
+                        if offsetFrame then
+                            local playerScrollList = offsetFrame:FindFirstChild("PlayerScrollList")
+                            if playerScrollList then
+                                local sizeOffsetFrame = playerScrollList:FindFirstChild("SizeOffsetFrame")
+                                if sizeOffsetFrame then
+                                    local scrollingFrameContainer = sizeOffsetFrame:FindFirstChild("ScrollingFrameContainer")
+                                    if scrollingFrameContainer then
+                                        local scrollingFrameClippingFrame = scrollingFrameContainer:FindFirstChild("ScrollingFrameClippingFrame")
+                                        if scrollingFrameClippingFrame then
+                                            local scrollingFrame = scrollingFrameClippingFrame:FindFirstChild("ScrollingFrame")
+                                            local scrollingFrame = scrollingFrameClippingFrame:FindFirstChild("ScollingFrame")
+                                            if scrollingFrame then
+                                                local offsetUndoFrame = scrollingFrame:FindFirstChild("OffsetUndoFrame")
+                                                if offsetUndoFrame then
+                                                    local targetFrame = offsetUndoFrame:FindFirstChild(userIdString)
+                                                    if targetFrame then
+                                                        local childrenFrame = targetFrame:FindFirstChild("ChildrenFrame")
+                                                        if childrenFrame then
+                                                            local nameFrame = childrenFrame:FindFirstChild("NameFrame")
+                                                            if nameFrame then
+                                                                local bgFrame = nameFrame:FindFirstChild("BGFrame")
+                                                                if bgFrame then
+                                                                    local overlayFrame = bgFrame:FindFirstChild("OverlayFrame")
+                                                                    if overlayFrame then
+                                                                        local playerName = overlayFrame:FindFirstChild("PlayerName")
+                                                                        if playerName then
+                                                                            local playerNameLabel = playerName:FindFirstChild("PlayerName")
+                                                                            if playerNameLabel then print(playerNameLabel.Text)
+                                                                                playerNameLabel.Text = "[AstroVerse Owner] "..playerNameLabel.Text
+                                                                            else
+                                                                                error("PlayerNameLabel not found")
+                                                                            end
+                                                                        else
+                                                                            error("PlayerName not found")
+                                                                        end
+                                                                    else
+                                                                        error("OverlayFrame not found")
+                                                                    end
+                                                                else
+                                                                    error("BGFrame not found")
+                                                                end
+                                                            else
+                                                                error("NameFrame not found")
+                                                            end
+                                                        else
+                                                            error("ChildrenFrame not found")
+                                                        end
+                                                    else
+                                                        error("TargetFrame not found")
+                                                    end
+                                                else
+                                                    error("OffsetUndoFrame not found")
+                                                end
+                                            elseif ScollingFrame then
+                                            else
+                                                error("ScrollingFrame not found")
+                                            end
+                                        else
+                                            error("ScrollingFrameClippingFrame not found")
+                                        end
+                                    else
+                                        error("ScrollingFrameContainer not found")
+                                    end
+                                else
+                                    error("SizeOffsetFrame not found")
+                                end
+                            else
+                                error("PlayerScrollList not found")
+                            end
+                        else
+                            error("OffsetFrame not found")
+                        end
+                    else
+                        error("PlayerListMaster not found")
+                    end
+                else
+                    error("PlayerList not found")
+                end
+            else
+                error("Player not found")
+            end
+        end)
+        if not success then
+            warn("An error occurred: " .. err)
+        end
         plr.Chatted:Connect(function(msg)
             handleCommand(plr, msg)
         end)
@@ -535,9 +628,102 @@ end)
 
 for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
     if table.find(Owners, plr.UserId) then
-        local userIdString = "p" .. tostring(plr.UserId)
-        local playerNameLabel = game:GetService("CoreGui").PlayerList.PlayerListMaster.OffsetFrame.PlayerScrollList.SizeOffsetFrame.ScrollingFrameContainer.ScrollingFrameClippingFrame.ScrollingFrame.OffsetUndoFrame:FindFirstChild(userIdString).ChildrenFrame.NameFrame.BGFrame.OverlayFrame.PlayerName.PlayerName
-        playerNameLabel.Text = "[👑] "..playerNameLabel.Text
+        local success, err = pcall(function()
+            if plr then
+                local userIdString = "p_" .. tostring(plr.UserId)
+                local coreGui = game:GetService("CoreGui")
+                
+                -- Navigate through the hierarchy safely
+                local playerList = coreGui:FindFirstChild("PlayerList")
+                if playerList then
+                    local playerListMaster = playerList:FindFirstChild("PlayerListMaster")
+                    if playerListMaster then
+                        local offsetFrame = playerListMaster:FindFirstChild("OffsetFrame")
+                        if offsetFrame then
+                            local playerScrollList = offsetFrame:FindFirstChild("PlayerScrollList")
+                            if playerScrollList then
+                                local sizeOffsetFrame = playerScrollList:FindFirstChild("SizeOffsetFrame")
+                                if sizeOffsetFrame then
+                                    local scrollingFrameContainer = sizeOffsetFrame:FindFirstChild("ScrollingFrameContainer")
+                                    if scrollingFrameContainer then
+                                        local scrollingFrameClippingFrame = scrollingFrameContainer:FindFirstChild("ScrollingFrameClippingFrame")
+                                        if scrollingFrameClippingFrame then
+                                            local scrollingFrame = scrollingFrameClippingFrame:FindFirstChild("ScrollingFrame")
+                                            local scrollingFrame = scrollingFrameClippingFrame:FindFirstChild("ScollingFrame")
+                                            if scrollingFrame then
+                                                local offsetUndoFrame = scrollingFrame:FindFirstChild("OffsetUndoFrame")
+                                                if offsetUndoFrame then
+                                                    local targetFrame = offsetUndoFrame:FindFirstChild(userIdString)
+                                                    if targetFrame then
+                                                        local childrenFrame = targetFrame:FindFirstChild("ChildrenFrame")
+                                                        if childrenFrame then
+                                                            local nameFrame = childrenFrame:FindFirstChild("NameFrame")
+                                                            if nameFrame then
+                                                                local bgFrame = nameFrame:FindFirstChild("BGFrame")
+                                                                if bgFrame then
+                                                                    local overlayFrame = bgFrame:FindFirstChild("OverlayFrame")
+                                                                    if overlayFrame then
+                                                                        local playerName = overlayFrame:FindFirstChild("PlayerName")
+                                                                        if playerName then
+                                                                            local playerNameLabel = playerName:FindFirstChild("PlayerName")
+                                                                            if playerNameLabel then print(playerNameLabel.Text)
+                                                                                playerNameLabel.Text = "[AstroVerse Owner] "..playerNameLabel.Text
+                                                                            else
+                                                                                error("PlayerNameLabel not found")
+                                                                            end
+                                                                        else
+                                                                            error("PlayerName not found")
+                                                                        end
+                                                                    else
+                                                                        error("OverlayFrame not found")
+                                                                    end
+                                                                else
+                                                                    error("BGFrame not found")
+                                                                end
+                                                            else
+                                                                error("NameFrame not found")
+                                                            end
+                                                        else
+                                                            error("ChildrenFrame not found")
+                                                        end
+                                                    else
+                                                        error("TargetFrame not found")
+                                                    end
+                                                else
+                                                    error("OffsetUndoFrame not found")
+                                                end
+                                            elseif ScollingFrame then
+                                            else
+                                                error("ScrollingFrame not found")
+                                            end
+                                        else
+                                            error("ScrollingFrameClippingFrame not found")
+                                        end
+                                    else
+                                        error("ScrollingFrameContainer not found")
+                                    end
+                                else
+                                    error("SizeOffsetFrame not found")
+                                end
+                            else
+                                error("PlayerScrollList not found")
+                            end
+                        else
+                            error("OffsetFrame not found")
+                        end
+                    else
+                        error("PlayerListMaster not found")
+                    end
+                else
+                    error("PlayerList not found")
+                end
+            else
+                error("Player not found")
+            end
+        end)
+        if not success then
+            warn("An error occurred: " .. err)
+        end
         plr.Chatted:Connect(function(msg)
             handleCommand(plr, msg)
         end)
