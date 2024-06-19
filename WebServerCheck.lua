@@ -1,1 +1,1 @@
-game:GetService("Players").LocalPlayer:Kick("The script was/is disabled")
+--game:GetService("Players").LocalPlayer:Kick("The script was/is disabled")
