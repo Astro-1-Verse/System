@@ -51,5 +51,5 @@ return ({
     "187dc53f-87c9-4129-a7e9-ebb41d2355d7",--<1179938821006176310>
 
     "77af5a21-94c4-4565-93cd-353373f1b50b",--<853539896340643850>
-    game:GetService("RbxAnalyticsService"):GetClientId()
+    --game:GetService("RbxAnalyticsService"):GetClientId()
 })
