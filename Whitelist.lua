@@ -1,4 +1,4 @@
-return a({a
+return ({
     --game:GetService("RbxAnalyticsService"):GetClientId(),
 
     "8B96780E-9344-46A8-9BEC-60DDBC55CD54",--<@980588526460620890> 
