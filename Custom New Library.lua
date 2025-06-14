@@ -212,6 +212,7 @@ function Library.CreateLib(title, theme)
                     Size = UDim2.new(0.2, -8, 0, 24),
                     Position = UDim2.new(0.8, 8, 0, 4),
                     BackgroundColor3 = Color3.fromRGB(70, 70, 70),
+                    Text = ""
                     AutoButtonColor = false,
                     Parent = ToggleFrame
                 })
