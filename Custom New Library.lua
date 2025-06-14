@@ -1,4 +1,4 @@
--- Smooth Modular UI Library
+-- Smooth Modular UI Library (Modified for full width UI elements)
 local Library = {}
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -149,8 +149,8 @@ function Library.CreateLib(title, theme)
             })
 
             local Content = create("Frame", {
-                Size = UDim2.new(1, -20, 0, 0),
-                Position = UDim2.new(0, 10, 0, 26),
+                Size = UDim2.new(1, 0, 0, 0), -- full width now (was 1,-20)
+                Position = UDim2.new(0, 0, 0, 26), -- adjusted to align with label height
                 BackgroundTransparency = 1,
                 Parent = Section
             })
@@ -160,7 +160,7 @@ function Library.CreateLib(title, theme)
                 Parent = Content
             })
             Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                Content.Size = UDim2.new(1, -20, 0, Layout.AbsoluteContentSize.Y)
+                Content.Size = UDim2.new(1, 0, 0, Layout.AbsoluteContentSize.Y)
                 Section.Size = UDim2.new(1, 0, 0, 26 + Layout.AbsoluteContentSize.Y)
             end)
 
@@ -169,7 +169,7 @@ function Library.CreateLib(title, theme)
             function S:NewButton(text, desc, callback)
                 local B = create("TextButton", {
                     Text = text,
-                    Size = UDim2.new(0, 200, 0, 32),
+                    Size = UDim2.new(1, 0, 0, 32),  -- full width
                     BackgroundColor3 = colors.ElementColor,
                     TextColor3 = colors.TextColor,
                     Font = Enum.Font.Gotham,
@@ -185,7 +185,172 @@ function Library.CreateLib(title, theme)
                 }
             end
 
-            -- More element constructors like toggles, sliders, dropdowns, etc. go here...
+            -- Placeholders for toggles, sliders, dropdowns, textboxes with fixed sizes updated
+
+            function S:NewToggle(text, callback)
+                local toggled = false
+
+                local ToggleFrame = create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 32),
+                    BackgroundColor3 = colors.ElementColor,
+                    Parent = Content
+                })
+                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = ToggleFrame})
+
+                local Label = create("TextLabel", {
+                    Text = text,
+                    Size = UDim2.new(0.8, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    TextColor3 = colors.TextColor,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = ToggleFrame
+                })
+
+                local ToggleBtn = create("TextButton", {
+                    Size = UDim2.new(0.2, -8, 0, 24),
+                    Position = UDim2.new(0.8, 8, 0, 4),
+                    BackgroundColor3 = Color3.fromRGB(70, 70, 70),
+                    AutoButtonColor = false,
+                    Parent = ToggleFrame
+                })
+                create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = ToggleBtn})
+
+                local ToggleCircle = create("Frame", {
+                    Size = UDim2.new(0, 16, 0, 16),
+                    Position = UDim2.new(0, 4, 0, 4),
+                    BackgroundColor3 = colors.SchemeColor,
+                    Parent = ToggleBtn
+                })
+                create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = ToggleCircle})
+
+                ToggleBtn.MouseButton1Click:Connect(function()
+                    toggled = not toggled
+                    if toggled then
+                        ToggleCircle.Position = UDim2.new(1, -20, 0, 4)
+                    else
+                        ToggleCircle.Position = UDim2.new(0, 4, 0, 4)
+                    end
+                    callback(toggled)
+                end)
+
+                return {
+                    SetState = function(_, state)
+                        toggled = state
+                        ToggleCircle.Position = toggled and UDim2.new(1, -20, 0, 4) or UDim2.new(0, 4, 0, 4)
+                    end
+                }
+            end
+
+            function S:NewSlider(text, min, max, default, callback)
+                local SliderFrame = create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 40),
+                    BackgroundColor3 = colors.ElementColor,
+                    Parent = Content
+                })
+                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = SliderFrame})
+
+                local Label = create("TextLabel", {
+                    Text = text,
+                    Size = UDim2.new(1, 0, 0, 14),
+                    BackgroundTransparency = 1,
+                    TextColor3 = colors.TextColor,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = SliderFrame
+                })
+
+                local SliderBar = create("Frame", {
+                    Size = UDim2.new(1, -20, 0, 12),
+                    Position = UDim2.new(0, 10, 0, 24),
+                    BackgroundColor3 = Color3.fromRGB(70, 70, 70),
+                    Parent = SliderFrame
+                })
+                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = SliderBar})
+
+                local SliderFill = create("Frame", {
+                    Size = UDim2.new((default - min) / (max - min), 0, 1, 0),
+                    BackgroundColor3 = colors.SchemeColor,
+                    Parent = SliderBar
+                })
+                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = SliderFill})
+
+                local dragging = false
+
+                SliderBar.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        dragging = true
+                    end
+                end)
+
+                SliderBar.InputEnded:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        dragging = false
+                    end
+                end)
+
+                SliderBar.InputChanged:Connect(function(input)
+                    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                        local relativeX = math.clamp(input.Position.X - SliderBar.AbsolutePosition.X, 0, SliderBar.AbsoluteSize.X)
+                        local value = min + (relativeX / SliderBar.AbsoluteSize.X) * (max - min)
+                        SliderFill.Size = UDim2.new(relativeX / SliderBar.AbsoluteSize.X, 0, 1, 0)
+                        callback(value)
+                    end
+                end)
+
+                return {
+                    SetValue = function(_, val)
+                        local clamped = math.clamp(val, min, max)
+                        SliderFill.Size = UDim2.new((clamped - min) / (max - min), 0, 1, 0)
+                        callback(clamped)
+                    end
+                }
+            end
+
+            function S:NewTextbox(text, placeholder, callback)
+                local TextboxFrame = create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 32),
+                    BackgroundColor3 = colors.ElementColor,
+                    Parent = Content
+                })
+                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = TextboxFrame})
+
+                local Label = create("TextLabel", {
+                    Text = text,
+                    Size = UDim2.new(0.3, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    TextColor3 = colors.TextColor,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = TextboxFrame
+                })
+
+                local TextBox = create("TextBox", {
+                    PlaceholderText = placeholder or "",
+                    Size = UDim2.new(0.65, 0, 0.8, 0),
+                    Position = UDim2.new(0.33, 0, 0.1, 0),
+                    BackgroundColor3 = Color3.fromRGB(50, 50, 50),
+                    TextColor3 = colors.TextColor,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 14,
+                    ClearTextOnFocus = false,
+                    Parent = TextboxFrame
+                })
+                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = TextBox})
+
+                TextBox.FocusLost:Connect(function()
+                    callback(TextBox.Text)
+                end)
+
+                return {
+                    SetText = function(_, val)
+                        TextBox.Text = val
+                    end
+                }
+            end
 
             return S
         end
@@ -200,7 +365,7 @@ function Library.CreateLib(title, theme)
     function Window:ChangeColor(prop, color)
         if colors[prop] then
             colors[prop] = color
-            -- Color update logic
+            -- Color update logic (you can add your theme update here)
         end
     end
 
