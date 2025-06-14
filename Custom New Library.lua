@@ -1,7 +1,8 @@
--- Smooth Modular UI Library (Modified for full width UI elements)
+-- Smooth Modular UI Library
 local Library = {}
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local function create(class, props)
     local inst = Instance.new(class)
@@ -149,8 +150,8 @@ function Library.CreateLib(title, theme)
             })
 
             local Content = create("Frame", {
-                Size = UDim2.new(1, 0, 0, 0), -- full width now (was 1,-20)
-                Position = UDim2.new(0, 0, 0, 26), -- adjusted to align with label height
+                Size = UDim2.new(1, 0, 0, 0),
+                Position = UDim2.new(0, 0, 0, 26),
                 BackgroundTransparency = 1,
                 Parent = Section
             })
@@ -169,7 +170,7 @@ function Library.CreateLib(title, theme)
             function S:NewButton(text, desc, callback)
                 local B = create("TextButton", {
                     Text = text,
-                    Size = UDim2.new(1, 0, 0, 32),  -- full width
+                    Size = UDim2.new(1, 0, 0, 32),
                     BackgroundColor3 = colors.ElementColor,
                     TextColor3 = colors.TextColor,
                     Font = Enum.Font.Gotham,
@@ -184,8 +185,6 @@ function Library.CreateLib(title, theme)
                     end
                 }
             end
-
-            -- Placeholders for toggles, sliders, dropdowns, textboxes with fixed sizes updated
 
             function S:NewToggle(text, callback)
                 local toggled = false
@@ -208,45 +207,58 @@ function Library.CreateLib(title, theme)
                     Parent = ToggleFrame
                 })
 
-                local ToggleBtn = create("TextButton", {
+                local ToggleBtn = create("Frame", {
                     Size = UDim2.new(0.2, -8, 0, 24),
                     Position = UDim2.new(0.8, 8, 0, 4),
-                    BackgroundColor3 = Color3.fromRGB(70, 70, 70),
-                    Text = ""
-                    AutoButtonColor = false,
+                    BackgroundColor3 = Color3.fromRGB(150, 150, 150), -- grey background off
                     Parent = ToggleFrame
                 })
-                create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = ToggleBtn})
+                create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = ToggleBtn})
 
                 local ToggleCircle = create("Frame", {
                     Size = UDim2.new(0, 16, 0, 16),
                     Position = UDim2.new(0, 4, 0, 4),
-                    BackgroundColor3 = colors.SchemeColor,
+                    BackgroundColor3 = Color3.fromRGB(120, 120, 120), -- grey ball off
                     Parent = ToggleBtn
                 })
                 create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = ToggleCircle})
 
-                ToggleBtn.MouseButton1Click:Connect(function()
-                    toggled = not toggled
-                    if toggled then
-                        ToggleCircle.Position = UDim2.new(1, -20, 0, 4)
-                    else
-                        ToggleCircle.Position = UDim2.new(0, 4, 0, 4)
+                local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+                ToggleBtn.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        toggled = not toggled
+                        if toggled then
+                            TweenService:Create(ToggleCircle, tweenInfo, {Position = UDim2.new(1, -20, 0, 4), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+                            TweenService:Create(ToggleBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(50, 200, 100)}):Play()
+                        else
+                            TweenService:Create(ToggleCircle, tweenInfo, {Position = UDim2.new(0, 4, 0, 4), BackgroundColor3 = Color3.fromRGB(120, 120, 120)}):Play()
+                            TweenService:Create(ToggleBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(150, 150, 150)}):Play()
+                        end
+                        callback(toggled)
                     end
-                    callback(toggled)
                 end)
 
                 return {
                     SetState = function(_, state)
                         toggled = state
-                        ToggleCircle.Position = toggled and UDim2.new(1, -20, 0, 4) or UDim2.new(0, 4, 0, 4)
+                        if toggled then
+                            ToggleCircle.Position = UDim2.new(1, -20, 0, 4)
+                            ToggleCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                            ToggleBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
+                        else
+                            ToggleCircle.Position = UDim2.new(0, 4, 0, 4)
+                            ToggleCircle.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+                            ToggleBtn.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+                        end
+                        callback(toggled)
                     end
                 }
             end
 
             function S:NewSlider(text, min, max, default, callback)
                 local SliderFrame = create("Frame", {
-                    Size = UDim2.new(1, 0, 0, 40),
+                    Size = UDim2.new(1, 0, 0, 32),
                     BackgroundColor3 = colors.ElementColor,
                     Parent = Content
                 })
@@ -254,7 +266,7 @@ function Library.CreateLib(title, theme)
 
                 local Label = create("TextLabel", {
                     Text = text,
-                    Size = UDim2.new(1, 0, 0, 14),
+                    Size = UDim2.new(0.4, 0, 1, 0),
                     BackgroundTransparency = 1,
                     TextColor3 = colors.TextColor,
                     Font = Enum.Font.Gotham,
@@ -263,60 +275,62 @@ function Library.CreateLib(title, theme)
                     Parent = SliderFrame
                 })
 
-                local SliderBar = create("Frame", {
-                    Size = UDim2.new(1, -20, 0, 12),
-                    Position = UDim2.new(0, 10, 0, 24),
-                    BackgroundColor3 = Color3.fromRGB(70, 70, 70),
+                local Slider = create("Frame", {
+                    Size = UDim2.new(0.55, 0, 0, 8),
+                    Position = UDim2.new(0.45, 0, 0.5, -4),
+                    BackgroundColor3 = Color3.fromRGB(100, 100, 100),
                     Parent = SliderFrame
                 })
-                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = SliderBar})
+                create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = Slider})
 
                 local SliderFill = create("Frame", {
                     Size = UDim2.new((default - min) / (max - min), 0, 1, 0),
                     BackgroundColor3 = colors.SchemeColor,
-                    Parent = SliderBar
+                    Parent = Slider
                 })
-                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = SliderFill})
+                create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = SliderFill})
 
                 local dragging = false
 
-                SliderBar.InputBegan:Connect(function(input)
+                Slider.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then
                         dragging = true
                     end
                 end)
 
-                SliderBar.InputEnded:Connect(function(input)
+                UIS.InputEnded:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then
                         dragging = false
                     end
                 end)
 
-                SliderBar.InputChanged:Connect(function(input)
+                UIS.InputChanged:Connect(function(input)
                     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                        local relativeX = math.clamp(input.Position.X - SliderBar.AbsolutePosition.X, 0, SliderBar.AbsoluteSize.X)
-                        local value = min + (relativeX / SliderBar.AbsoluteSize.X) * (max - min)
-                        SliderFill.Size = UDim2.new(relativeX / SliderBar.AbsoluteSize.X, 0, 1, 0)
+                        local relativeX = math.clamp(input.Position.X - Slider.AbsolutePosition.X, 0, Slider.AbsoluteSize.X)
+                        local percent = relativeX / Slider.AbsoluteSize.X
+                        SliderFill.Size = UDim2.new(percent, 0, 1, 0)
+                        local value = math.floor(min + (max - min) * percent)
                         callback(value)
                     end
                 end)
 
                 return {
                     SetValue = function(_, val)
-                        local clamped = math.clamp(val, min, max)
-                        SliderFill.Size = UDim2.new((clamped - min) / (max - min), 0, 1, 0)
-                        callback(clamped)
+                        val = math.clamp(val, min, max)
+                        local percent = (val - min) / (max - min)
+                        SliderFill.Size = UDim2.new(percent, 0, 1, 0)
+                        callback(val)
                     end
                 }
             end
 
             function S:NewTextbox(text, placeholder, callback)
-                local TextboxFrame = create("Frame", {
+                local BoxFrame = create("Frame", {
                     Size = UDim2.new(1, 0, 0, 32),
                     BackgroundColor3 = colors.ElementColor,
                     Parent = Content
                 })
-                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = TextboxFrame})
+                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = BoxFrame})
 
                 local Label = create("TextLabel", {
                     Text = text,
@@ -326,29 +340,31 @@ function Library.CreateLib(title, theme)
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = TextboxFrame
+                    Parent = BoxFrame
                 })
 
                 local TextBox = create("TextBox", {
-                    PlaceholderText = placeholder or "",
                     Size = UDim2.new(0.65, 0, 0.8, 0),
-                    Position = UDim2.new(0.33, 0, 0.1, 0),
-                    BackgroundColor3 = Color3.fromRGB(50, 50, 50),
+                    Position = UDim2.new(0.35, 0, 0.1, 0),
+                    BackgroundColor3 = Color3.fromRGB(20, 20, 20),
                     TextColor3 = colors.TextColor,
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
                     ClearTextOnFocus = false,
-                    Parent = TextboxFrame
+                    PlaceholderText = placeholder,
+                    Parent = BoxFrame
                 })
-                create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = TextBox})
+                create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = TextBox})
 
-                TextBox.FocusLost:Connect(function()
-                    callback(TextBox.Text)
+                TextBox.FocusLost:Connect(function(enterPressed)
+                    if enterPressed then
+                        callback(TextBox.Text)
+                    end
                 end)
 
                 return {
-                    SetText = function(_, val)
-                        TextBox.Text = val
+                    SetText = function(_, newText)
+                        TextBox.Text = newText
                     end
                 }
             end
@@ -366,7 +382,7 @@ function Library.CreateLib(title, theme)
     function Window:ChangeColor(prop, color)
         if colors[prop] then
             colors[prop] = color
-            -- Color update logic (you can add your theme update here)
+            -- You can add logic here to update colors dynamically if you want
         end
     end
 
