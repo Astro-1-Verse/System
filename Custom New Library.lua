@@ -1,235 +1,242 @@
--- Custom UI Lib with drag, minimize, and smooth toggle switch
-
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
-local Library = {}
-Library.ElementColor = Color3.fromRGB(40, 40, 40)
-Library.TextColor = Color3.fromRGB(230, 230, 230)
+local library = {}
 
-function Library:CreateWindow(title)
-    local Window = {}
-    
-    -- Main frame
-    Window.Main = Instance.new("Frame")
-    Window.Main.Size = UDim2.new(0, 400, 0, 300)
-    Window.Main.Position = UDim2.new(0.5, -200, 0.5, -150)
-    Window.Main.BackgroundColor3 = self.ElementColor
-    Window.Main.BorderSizePixel = 0
-    Window.Main.AnchorPoint = Vector2.new(0.5, 0.5)
-    Window.Main.Parent = game.CoreGui -- or wherever you want
-    
-    -- Title bar
-    Window.Header = Instance.new("Frame")
-    Window.Header.Size = UDim2.new(1, 0, 0, 30)
-    Window.Header.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Window.Header.Parent = Window.Main
-    
-    -- Title label
-    Window.Title = Instance.new("TextLabel")
-    Window.Title.Text = title or "UI Window"
-    Window.Title.Size = UDim2.new(1, -60, 1, 0)
-    Window.Title.BackgroundTransparency = 1
-    Window.Title.TextColor3 = self.TextColor
-    Window.Title.Font = Enum.Font.SourceSansBold
-    Window.Title.TextSize = 18
-    Window.Title.TextXAlignment = Enum.TextXAlignment.Left
-    Window.Title.Position = UDim2.new(0, 10, 0, 0)
-    Window.Title.Parent = Window.Header
-    
-    -- Minimize button
-    local minimized = false
-    local originalSize = Window.Main.Size
-    local originalPosition = Window.Main.Position
+function library:CreateLib(title, theme)
+	local AstroLib = Instance.new("ScreenGui", game.CoreGui)
+	AstroLib.Name = "AstroLib"
 
-    Window.MinimizeButton = Instance.new("TextButton")
-    Window.MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
-    Window.MinimizeButton.Position = UDim2.new(1, -35, 0, 2)
-    Window.MinimizeButton.Text = "-"
-    Window.MinimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    Window.MinimizeButton.TextColor3 = Color3.new(1,1,1)
-    Window.MinimizeButton.BorderSizePixel = 0
-    Window.MinimizeButton.Parent = Window.Header
+	local MainFrame = Instance.new("Frame")
+	MainFrame.Size = UDim2.new(0, 600, 0, 350)
+	MainFrame.Position = UDim2.new(0.5, -300, 0.5, -175)
+	MainFrame.BackgroundColor3 = theme.Background
+	MainFrame.BorderSizePixel = 0
+	MainFrame.Parent = AstroLib
 
-    Window.MinimizeButton.MouseButton1Click:Connect(function()
-        if not minimized then
-            originalSize = Window.Main.Size
-            originalPosition = Window.Main.Position
-            Window.Main.Size = UDim2.new(0, 40, 0, 40)
-            Window.Main.Position = UDim2.new(0, 10, 0, 10)
-            for _, child in pairs(Window.Main:GetChildren()) do
-                if child ~= Window.MinimizeButton and child ~= Window.Header then
-                    child.Visible = false
-                end
-            end
-            minimized = true
-        else
-            Window.Main.Size = originalSize
-            Window.Main.Position = originalPosition
-            for _, child in pairs(Window.Main:GetChildren()) do
-                child.Visible = true
-            end
-            minimized = false
-        end
-    end)
+	local Header = Instance.new("TextLabel")
+	Header.Size = UDim2.new(1, 0, 0, 40)
+	Header.BackgroundColor3 = theme.Header
+	Header.Text = title
+	Header.TextColor3 = theme.TextColor
+	Header.Font = Enum.Font.GothamBold
+	Header.TextSize = 18
+	Header.Parent = MainFrame
 
-    -- Make window draggable
-    local dragging, dragInput, dragStart, startPos
+	local TabHolder = Instance.new("Frame")
+	TabHolder.Size = UDim2.new(0, 100, 1, -40)
+	TabHolder.Position = UDim2.new(0, 0, 0, 40)
+	TabHolder.BackgroundColor3 = theme.ElementColor
+	TabHolder.BorderSizePixel = 0
+	TabHolder.Parent = MainFrame
 
-    local function update(input)
-        local delta = input.Position - dragStart
-        Window.Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
+	local ContentHolder = Instance.new("Frame")
+	ContentHolder.Size = UDim2.new(1, -100, 1, -40)
+	ContentHolder.Position = UDim2.new(0, 100, 0, 40)
+	ContentHolder.BackgroundColor3 = theme.Background
+	ContentHolder.BorderSizePixel = 0
+	ContentHolder.Parent = MainFrame
 
-    Window.Header.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = Window.Main.Position
+	local tabs = {}
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
+	local function switchTab(tab)
+		for i,v in pairs(ContentHolder:GetChildren()) do
+			if v:IsA("ScrollingFrame") then
+				v.Visible = false
+			end
+		end
+		tab.Visible = true
+	end
 
-    Window.Header.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
+	local function createToggle(text, callback)
+		local toggle = Instance.new("Frame")
+		toggle.Size = UDim2.new(1, -10, 0, 30)
+		toggle.BackgroundTransparency = 1
 
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
-        end
-    end)
+		local toggleText = Instance.new("TextLabel")
+		toggleText.Size = UDim2.new(1, -50, 1, 0)
+		toggleText.Position = UDim2.new(0, 10, 0, 0)
+		toggleText.BackgroundTransparency = 1
+		toggleText.Text = text
+		toggleText.TextColor3 = theme.TextColor
+		toggleText.Font = Enum.Font.Gotham
+		toggleText.TextSize = 14
+		toggleText.TextXAlignment = Enum.TextXAlignment.Left
+		toggleText.Parent = toggle
 
-    -- Container frame for sections/buttons/toggles below header
-    Window.Container = Instance.new("Frame")
-    Window.Container.Size = UDim2.new(1, 0, 1, -30)
-    Window.Container.Position = UDim2.new(0, 0, 0, 30)
-    Window.Container.BackgroundTransparency = 1
-    Window.Container.Parent = Window.Main
+		local switch = Instance.new("TextButton")
+		switch.Size = UDim2.new(0, 40, 0, 20)
+		switch.Position = UDim2.new(1, -50, 0.5, -10)
+		switch.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+		switch.BorderSizePixel = 0
+		switch.Text = ""
+		switch.AutoButtonColor = false
+		switch.Parent = toggle
 
-    -- Section creation
-    function Window:NewSection(title)
-        local Section = {}
+		local knob = Instance.new("Frame")
+		knob.Size = UDim2.new(0, 16, 0, 16)
+		knob.Position = UDim2.new(0, 2, 0, 2)
+		knob.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+		knob.BorderSizePixel = 0
+		knob.Parent = switch
 
-        Section.Frame = Instance.new("Frame")
-        Section.Frame.Size = UDim2.new(1, -20, 0, 100)
-        Section.Frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Section.Frame.Position = UDim2.new(0, 10, 0, #self.Container:GetChildren()*110) -- stacked
-        Section.Frame.Parent = self.Container
+		local toggled = false
+		switch.MouseButton1Click:Connect(function()
+			toggled = not toggled
+			if toggled then
+				switch.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+				knob:TweenPosition(UDim2.new(1, -18, 0, 2), "Out", "Sine", 0.2, true)
+				knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			else
+				switch.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+				knob:TweenPosition(UDim2.new(0, 2, 0, 2), "Out", "Sine", 0.2, true)
+				knob.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+			end
+			callback(toggled)
+		end)
 
-        Section.Title = Instance.new("TextLabel")
-        Section.Title.Text = title or "Section"
-        Section.Title.Size = UDim2.new(1, 0, 0, 20)
-        Section.Title.BackgroundTransparency = 1
-        Section.Title.TextColor3 = Library.TextColor
-        Section.Title.Font = Enum.Font.SourceSansBold
-        Section.Title.TextSize = 16
-        Section.Title.Parent = Section.Frame
+		return toggle
+	end
 
-        -- Container for buttons/toggles inside section
-        Section.Container = Instance.new("Frame")
-        Section.Container.Size = UDim2.new(1, 0, 1, -20)
-        Section.Container.Position = UDim2.new(0, 0, 0, 20)
-        Section.Container.BackgroundTransparency = 1
-        Section.Container.Parent = Section.Frame
+	function library.CreateTab(tabName)
+		local tabButton = Instance.new("TextButton")
+		tabButton.Size = UDim2.new(1, 0, 0, 40)
+		tabButton.Text = tabName
+		tabButton.BackgroundColor3 = theme.Header
+		tabButton.TextColor3 = theme.TextColor
+		tabButton.Font = Enum.Font.Gotham
+		tabButton.TextSize = 14
+		tabButton.BorderSizePixel = 0
+		tabButton.Parent = TabHolder
 
-        -- New Button
-        function Section:NewButton(text, callback)
-            local Button = Instance.new("TextButton")
-            Button.Size = UDim2.new(1, -20, 0, 30)
-            Button.Position = UDim2.new(0, 10, 0, #self.Container:GetChildren()*35)
-            Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-            Button.Text = text
-            Button.TextColor3 = Library.TextColor
-            Button.Font = Enum.Font.SourceSans
-            Button.TextSize = 16
-            Button.Parent = self.Container
+		local tabContent = Instance.new("ScrollingFrame")
+		tabContent.Size = UDim2.new(1, 0, 1, 0)
+		tabContent.CanvasSize = UDim2.new(0, 0, 5, 0)
+		tabContent.BackgroundTransparency = 1
+		tabContent.Visible = false
+		tabContent.Parent = ContentHolder
 
-            Button.MouseButton1Click:Connect(function()
-                callback()
-            end)
-        end
+		local UIListLayout = Instance.new("UIListLayout")
+		UIListLayout.Padding = UDim.new(0, 6)
+		UIListLayout.Parent = tabContent
 
-        -- New Toggle with smooth iOS style animation
-        function Section:NewToggle(text, callback)
-            local Toggle = Instance.new("Frame")
-            Toggle.Size = UDim2.new(1, 0, 0, 30)
-            Toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-            Toggle.Position = UDim2.new(0, 0, 0, #self.Container:GetChildren()*35)
-            Toggle.Parent = self.Container
+		tabButton.MouseButton1Click:Connect(function()
+			switchTab(tabContent)
+		end)
 
-            local Label = Instance.new("TextLabel")
-            Label.Text = text
-            Label.Size = UDim2.new(0.7, 0, 1, 0)
-            Label.BackgroundTransparency = 1
-            Label.TextColor3 = Library.TextColor
-            Label.TextXAlignment = Enum.TextXAlignment.Left
-            Label.Font = Enum.Font.SourceSans
-            Label.TextSize = 16
-            Label.Parent = Toggle
+		switchTab(tabContent)
 
-            local ToggleButton = Instance.new("Frame")
-            ToggleButton.Size = UDim2.new(0, 40, 0, 20)
-            ToggleButton.Position = UDim2.new(1, -50, 0.5, -10)
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
-            ToggleButton.BorderSizePixel = 0
-            ToggleButton.Parent = Toggle
-            ToggleButton.ClipsDescendants = true
-            ToggleButton.AnchorPoint = Vector2.new(1, 0.5)
+		return {
+			CreateButton = function(text, callback)
+				local button = Instance.new("TextButton")
+				button.Size = UDim2.new(1, -10, 0, 30)
+				button.Position = UDim2.new(0, 5, 0, 0)
+				button.BackgroundColor3 = theme.ElementColor
+				button.TextColor3 = theme.TextColor
+				button.Font = Enum.Font.Gotham
+				button.TextSize = 14
+				button.Text = text
+				button.BorderSizePixel = 0
+				button.Parent = tabContent
+				button.MouseButton1Click:Connect(callback)
+			end,
+			CreateToggle = function(text, callback)
+				local toggle = createToggle(text, callback)
+				toggle.Parent = tabContent
+			end,
+			CreateSlider = function(text, min, max, default, callback)
+				local frame = Instance.new("Frame")
+				frame.Size = UDim2.new(1, -10, 0, 30)
+				frame.BackgroundTransparency = 1
+				frame.Parent = tabContent
 
-            local Ball = Instance.new("Frame")
-            Ball.Size = UDim2.new(0, 18, 0, 18)
-            Ball.Position = UDim2.new(0, 1, 0.5, -9)
-            Ball.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
-            Ball.BorderSizePixel = 0
-            Ball.Parent = ToggleButton
-            Ball.AnchorPoint = Vector2.new(0, 0.5)
-            Ball.ZIndex = 2
-            Ball.Name = "Ball"
+				local label = Instance.new("TextLabel")
+				label.Size = UDim2.new(0.3, 0, 1, 0)
+				label.Position = UDim2.new(0, 10, 0, 0)
+				label.BackgroundTransparency = 1
+				label.Text = text
+				label.TextColor3 = theme.TextColor
+				label.Font = Enum.Font.Gotham
+				label.TextSize = 14
+				label.TextXAlignment = Enum.TextXAlignment.Left
+				label.Parent = frame
 
-            local toggled = false
+				local slider = Instance.new("TextButton")
+				slider.Size = UDim2.new(0.5, 0, 0, 10)
+				slider.Position = UDim2.new(0.4, 0, 0.5, -5)
+				slider.BackgroundColor3 = theme.ElementColor
+				slider.BorderSizePixel = 0
+				slider.Text = ""
+				slider.Parent = frame
 
-            local onBgColor = Color3.fromRGB(0, 200, 0)
-            local offBgColor = Color3.fromRGB(150, 150, 150)
-            local onBallColor = Color3.fromRGB(255, 255, 255)
-            local offBallColor = Color3.fromRGB(120, 120, 120)
+				local fill = Instance.new("Frame")
+				fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+				fill.BackgroundColor3 = theme.SchemeColor
+				fill.BorderSizePixel = 0
+				fill.Parent = slider
 
-            local onPosition = UDim2.new(1, -20, 0.5, -9)
-            local offPosition = UDim2.new(0, 1, 0.5, -9)
+				local dragging = false
 
-            local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				slider.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						dragging = true
+					end
+				end)
 
-            local function updateToggle(state)
-                if state then
-                    TweenService:Create(ToggleButton, tweenInfo, {BackgroundColor3 = onBgColor}):Play()
-                    TweenService:Create(Ball, tweenInfo, {BackgroundColor3 = onBallColor, Position = onPosition}):Play()
-                else
-                    TweenService:Create(ToggleButton, tweenInfo, {BackgroundColor3 = offBgColor}):Play()
-                    TweenService:Create(Ball, tweenInfo, {BackgroundColor3 = offBallColor, Position = offPosition}):Play()
-                end
-            end
+				slider.InputEnded:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						dragging = false
+					end
+				end)
 
-            Toggle.MouseButton1Click:Connect(function()
-                toggled = not toggled
-                updateToggle(toggled)
-                callback(toggled)
-            end)
+				UserInputService.InputChanged:Connect(function(input)
+					if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+						local pos = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
+						fill.Size = UDim2.new(pos, 0, 1, 0)
+						local value = math.floor(min + (max - min) * pos)
+						callback(value)
+					end
+				end)
+			end
+		}
+	end
 
-            -- Init to off
-            updateToggle(false)
+	-- Draggable support
+	local dragging, dragInput, dragStart, startPos
 
-            return Toggle
-        end
+	local function update(input)
+		local delta = input.Position - dragStart
+		MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
 
-        return Section
-    end
+	MainFrame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = MainFrame.Position
 
-    return Window
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+
+	MainFrame.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			dragInput = input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input == dragInput and dragging then
+			update(input)
+		end
+	end)
+
+	return library
 end
+
+return library
