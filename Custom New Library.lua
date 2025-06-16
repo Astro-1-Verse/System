@@ -35,11 +35,42 @@ function Library.CreateLib(title, theme)
     })
     create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = Main})
 
-    local Header = create("Frame", {
+    local Header = create("Frame", {        
         Size = UDim2.new(1, 0, 0, 36),
         BackgroundColor3 = colors.Header,
         Parent = Main
     })
+    local dragging = false
+    local dragInput, dragStart, startPos
+
+    Header.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = Main.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    Header.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                    startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
     create("UICorner", {CornerRadius = UDim.new(0, 12), Parent = Header})
 
     create("TextLabel", {
@@ -374,41 +405,6 @@ function Library.CreateLib(title, theme)
 
         return Tab
     end
-    
-    -- Draggable support
-	local dragging, dragInput, dragStart, startPos
-
-	local function update(input)
-		local delta = input.Position - dragStart
-		MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-
-	MainFrame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = MainFrame.Position
-
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-
-	MainFrame.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			dragInput = input
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			update(input)
-		end
-	end)
 
     function Window:ToggleUI()
         Main.Visible = not Main.Visible
