@@ -1,5 +1,5 @@
 return ({
-    --game:GetService("RbxAnalyticsService"):GetClientId(),
+    game:GetService("RbxAnalyticsService"):GetClientId(),
     "8B96780E-9344-46A8-9BEC-60DDBC55CD54",--<@980588526460620890>
     "E710BFF5-7107-450F-A75E-ADF8F42AC8DF",--<@451851563494014976>
     "2E2F72F8-39AD-4ADC-A7CD-2AB15C69BBE4",--<@416508189249503252>
