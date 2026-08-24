@@ -1,1 +1,1 @@
-game:GetService("Players").LocalPlayer:Kick("Banned")
+--game:GetService("Players").LocalPlayer:Kick("Banned")
