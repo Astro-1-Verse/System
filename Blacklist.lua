@@ -4,4 +4,5 @@ return({
     {hwid = "b51596b9-1ffe-4979-9b5a-b5f8b007f3e3", ip = "181.53.12.65", user_id = "idk"}, --<idk>
     {hwid = "E8921880-BFE4-46A9-8DD7-32344E8E594E", ip = "31.153.110.204", user_id = "<@i fancy cereal rn> most likely zelda"}, --<<@i fancy cereal rn> most likely zelda>
     {hwid = "E8921880-BFE4-46A9-8DD7-32344E8E594E", ip = "34.6874, 33.0366", user_id = "1537305426398285969"}, --<1537305426398285969>
+    {hwid = "E8921880-BFE4-46A9-8DD7-32344E8E594E", ip = "149.102.246.27", user_id = "Error 345"}, --<Error 345>
 })
